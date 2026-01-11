@@ -1,0 +1,265 @@
+{% extends "unfold/layouts/base_simple.html" %}
+{% load i18n static unfold %}
+
+{% block title %}Exam Statistics{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const theme = localStorage.getItem('unfold_theme') || 'dark';
+    document.body.classList.add(
+        theme === 'light' ? 'theme-light' : 'theme-dark'
+    );
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-[rgb(var(--color-base-200))]">
+        Exam Statistics
+    </h1>
+</div>
+
+<!-- BLOCK SELECT -->
+<form method="get" class="mb-8">
+    <div class="flex items-center gap-4">
+        <label class="text-sm font-medium text-[rgb(var(--color-base-300))]">
+            Exam Block
+        </label>
+        <select
+            name="block"
+            onchange="this.form.submit()"
+            class="rounded-lg px-4 py-2.5 text-sm
+                   bg-[rgb(var(--color-base-700))]
+                   text-[rgb(var(--color-base-200))]
+                   border border-white/10
+                   focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+        >
+            {% for key, subjects in exam_blocks.items %}
+                <option value="{{ key }}" {% if key == selected_block %}selected{% endif %}>
+                    {{ key }} ({{ subjects|join:", " }})
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<!-- MAIN GRID -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- LEFT: TOP 10 TABLE -->
+    <div class="rounded-xl p-6 border
+                bg-[rgb(var(--color-base-800))]
+                border-white/10 shadow-lg">
+
+        <h2 class="text-xl font-semibold mb-6 text-[rgb(var(--color-base-200))]">
+            Top 10 {{ selected_block }}
+        </h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-white/10">
+                        <th class="px-4 py-3 text-left font-semibold text-[rgb(var(--color-base-300))]">#</th>
+                        <th class="px-4 py-3 text-left font-semibold text-[rgb(var(--color-base-300))]">SBD</th>
+
+                        {% for subject in subjects %}
+                            <th class="px-4 py-3 text-right font-semibold text-[rgb(var(--color-base-300))] capitalize">
+                                {{ subject }}
+                            </th>
+                        {% endfor %}
+
+                        <th class="px-4 py-3 text-right font-semibold text-[rgb(var(--color-base-300))]">
+                            Total
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in top10 %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="px-4 py-3 text-[rgb(var(--color-base-400))]">{{ row.rank }}</td>
+
+                        <td class="px-4 py-3 font-medium text-[rgb(var(--color-base-200))]">
+                            {{ row.registration_number }}
+                        </td>
+
+                        {% for score in row.scores %}
+                            <td class="px-4 py-3 text-right text-[rgb(var(--color-base-300))]">
+                                {{ score|floatformat:2 }}
+                            </td>
+                        {% endfor %}
+
+                        <td class="px-4 py-3 text-right font-bold text-[rgb(var(--color-primary-400))]">
+                            {{ row.total|floatformat:2 }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="99" class="px-4 py-8 text-center text-[rgb(var(--color-base-500))]">
+                            No data available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- RIGHT: CHARTS -->
+    <div class="space-y-8">
+
+        <!-- SUBJECT CHARTS -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% for subject in subjects %}
+            <div class="rounded-xl p-4 border
+                        bg-[rgb(var(--color-base-800))]
+                        border-white/10 shadow-lg">
+
+                <h3 class="text-sm font-semibold mb-4 capitalize text-[rgb(var(--color-base-200))]">
+                    {{ subject }}
+                </h3>
+
+                <div class="relative h-40">
+                    <canvas id="chart-{{ subject }}"></canvas>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- TOTAL DISTRIBUTION -->
+        <div class="rounded-xl p-6 border
+                    bg-[rgb(var(--color-base-800))]
+                    border-white/10 shadow-lg">
+
+            <h2 class="text-xl font-semibold mb-6 text-[rgb(var(--color-base-200))]">
+                Score Distribution
+            </h2>
+
+            <div class="relative h-64">
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- CHART SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+new Chart(document.getElementById('scoreChart'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ chart.labels|safe }},
+        datasets: [{
+            data: {{ chart.data|safe }},
+            backgroundColor: {{ chart.colors|safe }},
+            borderWidth: 2,
+            borderColor: 'rgb(30, 41, 59)'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+            legend: {
+                position: 'right',
+                labels: {
+                    color: 'rgb(203, 213, 225)',
+                    font: {
+                        size: 13,
+                        weight: '500'
+                    },
+                    boxWidth: 16,
+                    boxHeight: 16,
+                    padding: 12,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                titleColor: 'rgb(226, 232, 240)',
+                bodyColor: 'rgb(203, 213, 225)',
+                borderColor: 'rgba(148, 163, 184, 0.3)',
+                borderWidth: 1,
+                padding: 12,
+                displayColors: true,
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        let value = context.parsed || 0;
+                        let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        let percentage = ((value / total) * 100).toFixed(1);
+                        return label + ': ' + value + ' (' + percentage + '%)';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+
+<script>
+const subjectCharts = {{ subject_charts|safe }};
+
+Object.entries(subjectCharts).forEach(([subject, chart]) => {
+    new Chart(document.getElementById(`chart-${subject}`), {
+        type: 'bar',
+        data: {
+            labels: chart.labels,
+            datasets: [{
+                data: chart.data,
+                backgroundColor: chart.colors,
+                borderRadius: 6,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleColor: 'rgb(226, 232, 240)',
+                    bodyColor: 'rgb(203, 213, 225)',
+                    borderColor: 'rgba(148, 163, 184, 0.3)',
+                    borderWidth: 1,
+                    padding: 10
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { 
+                        precision: 0,
+                        color: 'rgb(148, 163, 184)',
+                        font: { size: 11 }
+                    },
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'rgb(148, 163, 184)',
+                        font: { size: 11 }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+{% endblock %}
