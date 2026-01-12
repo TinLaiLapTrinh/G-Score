@@ -34,7 +34,6 @@ permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
     path('gscore-admin/', gscore_admin_site.urls),
     path('', include('core.urls')),
 

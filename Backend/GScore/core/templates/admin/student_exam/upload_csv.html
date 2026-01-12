@@ -53,6 +53,21 @@
             </div>
 
             <div class="flex gap-3">
+                <div class="space-y-2">
+                    <label for="course-select" class="block text-sm font-medium" 
+                           style="color: rgb(var(--color-base-400))">
+                        {% trans "Select Course" %}
+                    </label>
+                    <select name="course" id="course-select" required
+                            class="block w-full text-sm rounded-lg p-2 bg-[rgb(var(--color-base-700))] 
+                                   border border-[rgba(255,255,255,0.05)] text-[rgb(var(--color-base-300))]">
+                        <option value="" disabled selected>{% trans "Choose a course" %}</option>
+                        {% for c in courses %}
+                            <option value="{{ c.id }}">{{ c.code }} ({{ c.start_year }}-{{ c.end_year }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
                 <button 
                     type="submit"
                     class="inline-flex justify-center items-center px-4 py-2 

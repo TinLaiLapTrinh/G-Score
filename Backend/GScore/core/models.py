@@ -125,6 +125,14 @@ class StudentExamResult(models.Model):
         blank=True
     )
 
+    course = models.ForeignKey(
+        'Course',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_results"
+    )
+
     
 class ClassRoom(models.Model):
     code = models.CharField(

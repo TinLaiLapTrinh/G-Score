@@ -1,9 +1,9 @@
 from django.views import View
 from django.shortcuts import render
-from core.models import StudentExamResult
+from core.models import StudentExamResult, Course
 from admin.site import gscore_admin_site
 from utilities.choice import EXAM_BLOCKS
-from ..services.exam_statistics import ExamStatisticsService
+from ..services.exam_statistics import ExamStatisticsService, StudentExamCSVForm
 from django.contrib import messages
 from django.urls import path
 from django.shortcuts import render, redirect
@@ -19,23 +19,44 @@ class StudentExamStatisticsAdminView(View):
 
     def get(self, request):
         block = request.GET.get("block", "A00")
+        course_id = request.GET.get("course")  # Lấy course từ query string
+        course = None
 
-        service = ExamStatisticsService(block=block)
+        top10 = []
+        chart = {}
+        subject_charts = {}
+        subjects = []
+
+        if course_id:
+            try:
+                course = Course.objects.get(id=course_id)
+
+                # Chỉ fetch dữ liệu khi có course
+                service = ExamStatisticsService(block=block, course=course)
+                top10 = service.top10_by_block()
+                chart = service.score_distribution()
+                subject_charts = service.subject_distributions()
+                subjects = service.subjects
+
+            except Course.DoesNotExist:
+                messages.warning(request, "Khóa học không tồn tại")
 
         context = {
             **gscore_admin_site.each_context(request),
             "title": "Exam Statistics",
             "exam_blocks": EXAM_BLOCKS,
             "selected_block": block,
-            "chart": service.score_distribution(),
-            "top10": service.top10_by_block(),
-            "subject_charts": service.subject_distributions(), 
-            "subjects": service.subjects,  
+            "courses": Course.objects.all(),  # dropdown
+            "selected_course": course,
+            "top10": top10,
+            "chart": chart,
+            "subject_charts": subject_charts,
+            "subjects": subjects,
             "opts": self.model._meta,
         }
 
         return render(request, self.template_name, context)
-    
+
 class StudentExamUploadCSVAdminView(View):
     template_name = "admin/student_exam/upload_csv.html"
 
@@ -45,16 +66,21 @@ class StudentExamUploadCSVAdminView(View):
             **gscore_admin_site.each_context(request),
             "title": "Import Student Exam Results",
             "opts": StudentExamResult._meta,
+            "form": StudentExamCSVForm(),
+            "courses": Course.objects.all(),
         }
         return render(request, self.template_name, context)
 
     def post(self, request):
         """Xử lý upload CSV"""
-        file = request.FILES.get("file")
+        form = StudentExamCSVForm(request.POST, request.FILES)
 
-        if not file:
-            messages.error(request, "Vui lòng chọn file CSV")
+        if not form.is_valid():
+            messages.error(request, "Vui lòng chọn file CSV và khóa học")
             return redirect(request.path)
+
+        file = form.cleaned_data["file"]
+        course = form.cleaned_data["course"]
 
         if not file.name.endswith(".csv"):
             messages.error(request, "Chỉ hỗ trợ file CSV")
@@ -72,6 +98,7 @@ class StudentExamUploadCSVAdminView(View):
                     results.append(
                         StudentExamResult(
                             registration_number=row["sbd"],
+                            course=course,  # Gán khóa học vào đây
                             math=row.get("toan") or None,
                             literature=row.get("ngu_van") or None,
                             foreign_language=row.get("ngoai_ngu") or None,
@@ -92,7 +119,7 @@ class StudentExamUploadCSVAdminView(View):
                 if results:
                     StudentExamResult.objects.bulk_create(results)
 
-            messages.success(request, "Data import successfuly")
+            messages.success(request, f"Data imported successfully for course {course.code}")
 
         except Exception as e:
             messages.error(request, f"Import error: {e}")

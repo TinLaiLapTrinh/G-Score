@@ -4,7 +4,7 @@ from django.db import transaction
 import csv
 from django.utils.html import format_html
 from django.contrib import admin
-from .models import User, StudentExamResult
+from .models import User, StudentExamResult, Course
 from admin.site import gscore_admin_site
 from unfold.admin import ModelAdmin
 from admin.components import action_button, option_display
@@ -13,8 +13,6 @@ from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import path
 from core.admin_views import views
-# from .templates.admin.services import exam_statistics
-# from .templates.admin.services.views import StudentExamStatisticsAdminView
 
 
 class UserAdmin(ModelAdmin):
@@ -67,13 +65,35 @@ class UserAdmin(ModelAdmin):
             return False
         return super().has_delete_permission(request, obj)
     
+class CourseAdmin(ModelAdmin):
+    list_display = ['code', 'name', 'start_year', 'end_year']
+    search_fields = ['code', 'name']
+    list_filter = ['start_year', 'end_year']
+
+    fieldsets = [
+        (
+            "Course Info",
+            {"fields": ["code", "name", "start_year", "end_year"]}
+        ),
+    ]
 
 class StudentExamResultAdmin(ModelAdmin):
-    list_display = ['registration_number', 'math', 'literature', 'foreign_language']
+    list_display = ['registration_number', 'course', 'math', 'literature', 'foreign_language']
     search_fields = ['registration_number']
-    
+    list_filter = ['course']
+    readonly_fields = ['math', 'literature', 'foreign_language', 
+                       'physics', 'chemistry', 'biology',
+                       'history', 'geography', 'civic_education', 'foreign_language_code']
+
+    def get_queryset(self, request):
+        """Chỉ fetch khi có filter `course`"""
+        qs = super().get_queryset(request)
+        course_id = request.GET.get('course')
+        if course_id:
+            qs = qs.filter(course_id=course_id)
+        return qs
+
     def get_urls(self):
-        """Thêm custom URL cho import CSV và statistics"""
         urls = super().get_urls()
         custom_urls = [
             path(
@@ -83,19 +103,16 @@ class StudentExamResultAdmin(ModelAdmin):
             ),
             path(
                 'statistics/', 
-                self.admin_site.admin_view(
-                    views.StudentExamStatisticsAdminView.as_view()
-                ),
+                self.admin_site.admin_view(views.StudentExamStatisticsAdminView.as_view()),
                 name='core_studentexamresult_statistics',
             ),
         ]
         return custom_urls + urls
+
     def statistics_button(self, obj=None):
         return action_button("📊 Statistics", "statistics/", "blue")
+    
 
-    statistics_button.short_description = "Statistics"
-
-
-
+gscore_admin_site.register(Course, CourseAdmin)
 gscore_admin_site.register(User, UserAdmin)
 gscore_admin_site.register(StudentExamResult, StudentExamResultAdmin)

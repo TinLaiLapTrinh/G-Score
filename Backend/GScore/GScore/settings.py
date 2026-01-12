@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -86,9 +87,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'GScore.wsgi.application'
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -222,6 +224,17 @@ UNFOLD = {
                         "link": reverse_lazy("gscore_admin:core_user_changelist")
                     },
                 ]
+            },
+              {
+                "title": _("Course Manage"),
+                "separator": True,
+                "items": [
+                    {
+                        "title": _("Course"),
+                        "icon": "assignment",
+                        "link": reverse_lazy("gscore_admin:core_course_changelist"),
+                    },
+                ],
             },
             
             {
