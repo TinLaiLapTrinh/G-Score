@@ -80,7 +80,8 @@ python manage.py createsuperuser
 ### 1. Cài đặt dependencies
 
 ```bash
-cd frontend
+cd Frontend
+cd gscore
 npm install
 ```
 
