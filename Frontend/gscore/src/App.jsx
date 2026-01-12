@@ -12,14 +12,22 @@ function App() {
 
   return (
     <MyUserContext.Provider value={[user, dispatch]}>
-      <Header />
-      <div className="container">
-        <Routes>
-          <Route path="/" element={<h1>Welcome to G-Score</h1>} />
-          <Route path="/result" element={<StudentExamResult />} />
-        </Routes>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        minHeight: '100vh',
+        margin: 0,
+        padding: 0
+      }}>
+        <Header />
+        <div className="container" style={{ flex: '1 0 auto' }}>
+          <Routes>
+            <Route path="/" element={<h1>Welcome to G-Score</h1>} />
+            <Route path="/result" element={<StudentExamResult />} />
+          </Routes>
+        </div>
+        <Footer />
       </div>
-      <Footer />
     </MyUserContext.Provider>
   );
 }
