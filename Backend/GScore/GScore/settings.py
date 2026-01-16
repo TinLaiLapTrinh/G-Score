@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'corsheaders',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
@@ -89,8 +90,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'GScore.wsgi.application'
 
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+# ]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://gscore-ms3649z5s-tins-projects-c47c0927.vercel.app",
 ]
 
 
