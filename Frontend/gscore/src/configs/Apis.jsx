@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://g-score-t3np.onrender.com";
+
 
 const CLIENT_ID = "R9f80lielipFDVbPnJ716chbBkYMSlQi2DlQcQDw";
 const CLIENT_SECRET = "vV88G5317CITuPEetv6AFb32Q65iRvEf0qONIZbOCk2PrpN73UmFwXq4umF6lLWNNRrjc53B7ehf68E9MLMtyldcM5hEv6Wlq8og2t3xe4o8eyhEkTd6bU9Sn8Gg9GS4";
