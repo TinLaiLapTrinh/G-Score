@@ -23,56 +23,49 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <!-- FILTERS FORM -->
-<form method="get" class="mb-8 flex flex-wrap items-end gap-4">
+<form method="get" class="mb-8 grid grid-cols-1 md:grid-cols-12 gap-4">
     
-    <div class="w-full sm:w-auto">
+    <div class="md:col-span-5">
         <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
             Exam Block
         </label>
-        <div class="relative">
-            <select name="block"
-                    class="appearance-none border rounded-lg w-full py-2 px-4 pr-10 text-sm leading-tight transition-colors focus:outline-none focus:ring-2
-                           bg-white border-gray-300 text-gray-700 
-                           dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200
-                           focus:ring-primary-500 focus:border-primary-500">
-                {% for key, subjects in exam_blocks.items %}
-                    <option value="{{ key }}" {% if key == selected_block %}selected{% endif %}>
-                        {{ key }} ({{ subjects|join:", " }})
-                    </option>
-                {% endfor %}
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-            </div>
-        </div>
+        <select name="block"
+                class="block w-full px-4 py-2 text-sm border rounded-lg focus:ring-2 focus:outline-none transition-colors
+                       bg-white border-gray-300 text-gray-700 
+                       dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200
+                       focus:ring-primary-500 focus:border-primary-500">
+            {% for key, subjects in exam_blocks.items %}
+                <option value="{{ key }}" {% if key == selected_block %}selected{% endif %}>
+                    {{ key }} ({{ subjects|join:", " }})
+                </option>
+            {% endfor %}
+        </select>
     </div>
 
-    <div class="w-full sm:w-auto">
+    <div class="md:col-span-5">
         <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
             Course
         </label>
-        <div class="relative">
-            <select name="course" required
-                    class="appearance-none border rounded-lg w-full py-2 px-4 pr-10 text-sm leading-tight transition-colors focus:outline-none focus:ring-2
-                           bg-white border-gray-300 text-gray-700 
-                           dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200
-                           focus:ring-primary-500 focus:border-primary-500">
-                {% for c in courses %}
-                    <option value="{{ c.id }}" 
-                        {% if selected_course and selected_course.id == c.id %}selected{% elif not selected_course and forloop.first %}selected{% endif %}>
-                        {{ c.code }} ({{ c.start_year }}-{{ c.end_year }})
-                    </option>
-                {% endfor %}
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-            </div>
-        </div>
+        <select name="course" required
+                class="block w-full px-4 py-2 text-sm border rounded-lg focus:ring-2 focus:outline-none transition-colors
+                       bg-white border-gray-300 text-gray-700 
+                       dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200
+                       focus:ring-primary-500 focus:border-primary-500">
+            {% for c in courses %}
+                <option value="{{ c.id }}" 
+                    {% if selected_course and selected_course.id == c.id %}selected{% elif not selected_course and forloop.first %}selected{% endif %}>
+                    {{ c.code }} ({{ c.start_year }}-{{ c.end_year }})
+                </option>
+            {% endfor %}
+        </select>
     </div>
 
-    <div class="w-full sm:w-auto">
+    <div class="md:col-span-2">
+        <label class="block mb-2 text-sm font-medium text-transparent select-none">
+            Filter
+        </label>
         <button type="submit"
-                class="inline-flex items-center justify-center w-full sm:w-auto px-5 py-2 rounded-lg text-sm font-medium text-white shadow-sm transition-all
+                class="w-full flex items-center justify-center px-6 py-2 border border-transparent rounded-lg text-sm font-medium text-white shadow-sm transition-all whitespace-nowrap
                        bg-primary-600 hover:bg-primary-700 
                        focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
             Filter
