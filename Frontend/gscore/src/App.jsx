@@ -1,8 +1,8 @@
 import React, { useReducer } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import Footer from './components/layout/Footer';
-import Header from './components/layout/Header';
+import Footer from './components/layout/footer';
+import Header from './components/layout/header';
 import StudentExamResult from './components/resultCheck';
 import { MyUserContext } from './configs/context';
 import MyUserReducer from './reducers/myReducer';
