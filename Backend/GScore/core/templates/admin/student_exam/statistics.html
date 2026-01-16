@@ -24,38 +24,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- FILTERS FORM -->
 <form method="get" class="mb-8 flex flex-wrap items-end gap-4">
-    <div>
-        <label class="text-sm font-medium text-[rgb(var(--color-base-300))]">Exam Block</label>
-        <select name="block"
-                class="rounded-lg px-4 py-2 text-sm bg-[rgb(var(--color-base-700))] text-[rgb(var(--color-base-200))] border border-white/10 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-500))]/50">
-            {% for key, subjects in exam_blocks.items %}
-                <option value="{{ key }}" {% if key == selected_block %}selected{% endif %}>
-                    {{ key }} ({{ subjects|join:", " }})
-                </option>
-            {% endfor %}
-        </select>
+    
+    <div class="w-full sm:w-auto">
+        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+            Exam Block
+        </label>
+        <div class="relative">
+            <select name="block"
+                    class="appearance-none border rounded-lg w-full py-2 px-4 pr-10 text-sm leading-tight transition-colors focus:outline-none focus:ring-2
+                           bg-white border-gray-300 text-gray-700 
+                           dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200
+                           focus:ring-primary-500 focus:border-primary-500">
+                {% for key, subjects in exam_blocks.items %}
+                    <option value="{{ key }}" {% if key == selected_block %}selected{% endif %}>
+                        {{ key }} ({{ subjects|join:", " }})
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
+                <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+        </div>
     </div>
 
-    <div>
-        <label class="text-sm font-medium text-[rgb(var(--color-base-300))]">Course</label>
-        <select name="course" required
-                class="rounded-lg px-4 py-2 text-sm bg-[rgb(var(--color-base-700))] text-[rgb(var(--color-base-200))] border border-white/10 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-500))]/50">
-            {% for c in courses %}
-                <option value="{{ c.id }}" 
-                    {% if selected_course and selected_course.id == c.id %}selected{% elif not selected_course and forloop.first %}selected{% endif %}>
-                    {{ c.code }} ({{ c.start_year }}-{{ c.end_year }})
-                </option>
-            {% endfor %}
-        </select>
+    <div class="w-full sm:w-auto">
+        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+            Course
+        </label>
+        <div class="relative">
+            <select name="course" required
+                    class="appearance-none border rounded-lg w-full py-2 px-4 pr-10 text-sm leading-tight transition-colors focus:outline-none focus:ring-2
+                           bg-white border-gray-300 text-gray-700 
+                           dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200
+                           focus:ring-primary-500 focus:border-primary-500">
+                {% for c in courses %}
+                    <option value="{{ c.id }}" 
+                        {% if selected_course and selected_course.id == c.id %}selected{% elif not selected_course and forloop.first %}selected{% endif %}>
+                        {{ c.code }} ({{ c.start_year }}-{{ c.end_year }})
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
+                <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+        </div>
     </div>
 
-    <div>
+    <div class="w-full sm:w-auto">
         <button type="submit"
-                class="px-4 py-2 rounded-lg text-sm font-medium text-white 
-                       bg-[rgb(var(--color-primary-600))] 
-                       hover:bg-[rgb(var(--color-primary-700))] 
-                       focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-500))] focus:ring-offset-2 focus:ring-offset-[rgb(var(--color-base-900))]
-                       transition-colors shadow-sm">
+                class="inline-flex items-center justify-center w-full sm:w-auto px-5 py-2 rounded-lg text-sm font-medium text-white shadow-sm transition-all
+                       bg-primary-600 hover:bg-primary-700 
+                       focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
             Filter
         </button>
     </div>
